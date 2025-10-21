@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { getProperties } from "@/services/propertyService";
 import { useRouter } from "next/navigation";
+import { capitalize, getFilterButtonClass, getStatusClass } from "./utils/utils";
 
 export default function PropertyListPage() {
   const [properties, setProperties] = useState<any[]>([]);
@@ -13,20 +14,6 @@ export default function PropertyListPage() {
     getProperties().then(setProperties);
   }, []);
 
-  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-
-  const statusClass = (status: string) => {
-    switch (status) {
-      case "vacant":
-        return "bg-green-100 text-green-700";
-      case "occupied":
-        return "bg-yellow-100 text-yellow-700";
-      case "maintenance":
-        return "bg-red-100 text-red-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
 
   const filteredProperties = properties
     .filter((p) => filter === "all" || p.status === filter)
@@ -35,40 +22,6 @@ export default function PropertyListPage() {
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.address.toLowerCase().includes(search.toLowerCase())
     );
-
-const filterButtonClass = (btnStatus: string) => {
-  let base = "px-3 py-1 rounded font-medium";
-  let color = "";
-
-  switch (btnStatus) {
-    case "vacant":
-      color =
-        filter === "vacant"
-          ? "bg-green-600 text-white"
-          : "bg-green-100 text-green-700";
-      break;
-    case "occupied":
-      color =
-        filter === "occupied"
-          ? "bg-yellow-600 text-white"
-          : "bg-yellow-100 text-yellow-700";
-      break;
-    case "maintenance":
-      color =
-        filter === "maintenance"
-          ? "bg-red-600 text-white"
-          : "bg-red-100 text-red-700";
-      break;
-    default:
-      color =
-        filter === "all"
-          ? "bg-gray-600 text-white"
-          : "bg-gray-200 text-gray-700";
-  }
-
-  return `${base} ${color}`;
-};
-
 
   return (
     <main className="p-4 md:p-6">
@@ -93,17 +46,17 @@ const filterButtonClass = (btnStatus: string) => {
 
       {/* Filter buttons */}
       <div className="flex gap-2 mb-4 flex-wrap">
-        <button className={filterButtonClass("all")} onClick={() => setFilter("all")}>
+        <button className={getFilterButtonClass("all", filter)} onClick={() => setFilter("all")}>
           All
         </button>
-        <button className={filterButtonClass("vacant")} onClick={() => setFilter("vacant")}>
+        <button className={getFilterButtonClass("vacant", filter)} onClick={() => setFilter("vacant")}>
           Vacant
         </button>
-        <button className={filterButtonClass("occupied")} onClick={() => setFilter("occupied")}>
+        <button className={getFilterButtonClass("occupied", filter)} onClick={() => setFilter("occupied")}>
           Occupied
         </button>
         <button
-          className={filterButtonClass("maintenance")}
+          className={getFilterButtonClass("maintenance", filter)}
           onClick={() => setFilter("maintenance")}
         >
           Maintenance
@@ -122,7 +75,7 @@ const filterButtonClass = (btnStatus: string) => {
                 <h2 className="font-semibold text-lg">{p.name}</h2>
                 <p className="text-sm">{p.address}</p>
                 <span
-                  className={`px-2 py-1 text-xs rounded mt-1 inline-block ${statusClass(
+                  className={`px-2 py-1 text-xs rounded mt-1 inline-block ${getStatusClass(
                     p.status
                   )}`}
                 >
