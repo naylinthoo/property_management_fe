@@ -109,7 +109,7 @@ export default function TaskForm({ propertyId, onSuccess }: Props) {
         <button
           type="submit"
           disabled={submitting}
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-60"
+          className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded disabled:opacity-60"
         >
           {submitting ? "Creating…" : "Create Task"}
         </button>
