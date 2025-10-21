@@ -19,6 +19,7 @@ export default function PropertyForm({ initialData, isEditMode }: PropertyFormPr
       status: "vacant",
     }
   );
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -27,6 +28,7 @@ export default function PropertyForm({ initialData, isEditMode }: PropertyFormPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       if (isEditMode) {
         await updateProperty(initialData.id, form);
@@ -36,6 +38,8 @@ export default function PropertyForm({ initialData, isEditMode }: PropertyFormPr
       router.push("/");
     } catch (err) {
       console.error("Error saving property:", err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -90,11 +94,21 @@ export default function PropertyForm({ initialData, isEditMode }: PropertyFormPr
           <option value="occupied">Occupied</option>
           <option value="maintenance">Maintenance</option>
         </select>
+
         <button
           type="submit"
-          className="bg-gray-900 text-white px-4 py-2 rounded w-full"
+          disabled={submitting}
+          className={`px-4 py-2 rounded w-full text-white ${
+            submitting ? "bg-gray-500 cursor-not-allowed" : "bg-gray-900 hover:bg-gray-800"
+          }`}
         >
-          {isEditMode ? "Update Property" : "Create Property"}
+          {submitting
+            ? isEditMode
+              ? "Updating..."
+              : "Creating..."
+            : isEditMode
+            ? "Update Property"
+            : "Create Property"}
         </button>
       </form>
     </div>

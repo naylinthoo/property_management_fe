@@ -91,6 +91,7 @@ export default function TaskForm({ propertyId, onSuccess }: Props) {
           onChange={handleChange}
           placeholder="Assigned person"
           className="border rounded p-2"
+          required
         />
 
         <input
