@@ -1,103 +1,148 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useState } from "react";
+import { getProperties } from "@/services/propertyService";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function PropertyListPage() {
+  const [properties, setProperties] = useState<any[]>([]);
+  const [filter, setFilter] = useState<"all" | "vacant" | "occupied" | "maintenance">("all");
+  const [search, setSearch] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    getProperties().then(setProperties);
+  }, []);
+
+  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+  const statusClass = (status: string) => {
+    switch (status) {
+      case "vacant":
+        return "bg-green-100 text-green-700";
+      case "occupied":
+        return "bg-yellow-100 text-yellow-700";
+      case "maintenance":
+        return "bg-red-100 text-red-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const filteredProperties = properties
+    .filter((p) => filter === "all" || p.status === filter)
+    .filter(
+      (p) =>
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.address.toLowerCase().includes(search.toLowerCase())
+    );
+
+const filterButtonClass = (btnStatus: string) => {
+  let base = "px-3 py-1 rounded font-medium";
+  let color = "";
+
+  switch (btnStatus) {
+    case "vacant":
+      color =
+        filter === "vacant"
+          ? "bg-green-600 text-white"
+          : "bg-green-100 text-green-700";
+      break;
+    case "occupied":
+      color =
+        filter === "occupied"
+          ? "bg-yellow-600 text-white"
+          : "bg-yellow-100 text-yellow-700";
+      break;
+    case "maintenance":
+      color =
+        filter === "maintenance"
+          ? "bg-red-600 text-white"
+          : "bg-red-100 text-red-700";
+      break;
+    default:
+      color =
+        filter === "all"
+          ? "bg-gray-600 text-white"
+          : "bg-gray-200 text-gray-700";
+  }
+
+  return `${base} ${color}`;
+};
+
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="p-4 md:p-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-3">
+        <h1 className="text-2xl font-bold">Properties</h1>
+        <div className="flex gap-2 flex-wrap">
+          <input
+            type="text"
+            placeholder="Search"
+            className="border rounded px-3 py-1"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button
+            onClick={() => router.push("/properties/new")}
+            className="bg-gray-800 text-white px-4 py-1 rounded"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            + Add Property
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </div>
+
+      {/* Filter buttons */}
+      <div className="flex gap-2 mb-4 flex-wrap">
+        <button className={filterButtonClass("all")} onClick={() => setFilter("all")}>
+          All
+        </button>
+        <button className={filterButtonClass("vacant")} onClick={() => setFilter("vacant")}>
+          Vacant
+        </button>
+        <button className={filterButtonClass("occupied")} onClick={() => setFilter("occupied")}>
+          Occupied
+        </button>
+        <button
+          className={filterButtonClass("maintenance")}
+          onClick={() => setFilter("maintenance")}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          Maintenance
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+        {filteredProperties.map((p) => (
+          <div
+            key={p.id}
+            className="relative border rounded p-3 hover:shadow-md transition cursor-pointer"
+            onClick={() => router.push(`/properties/${p.id}`)}
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="font-semibold text-lg">{p.name}</h2>
+                <p className="text-sm">{p.address}</p>
+                <span
+                  className={`px-2 py-1 text-xs rounded mt-1 inline-block ${statusClass(
+                    p.status
+                  )}`}
+                >
+                  {capitalize(p.status)}
+                </span>
+              </div>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/properties/${p.id}/edit`);
+                }}
+                className="ml-2 px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm"
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
   );
 }
